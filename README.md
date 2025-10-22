@@ -1,73 +1,217 @@
-# Welcome to your Lovable project
+# Advanced Trading Calculator
 
-## Project info
+A professional, production-ready trading calculator application refactored from the original single-page HTML implementation by **Manish Ranjan**. This modernized version preserves **100% mathematical parity** with the original while providing a clean, maintainable React architecture.
 
-**URL**: https://lovable.dev/projects/4af475ab-c7a5-4bb0-875d-85f82e0407af
+## 🎯 Project Goals
 
-## How can I edit this code?
+- ✅ **Preserve All Formulas**: Every mathematical formula is preserved exactly as in the original
+- ✅ **Modular Architecture**: Clean separation of concerns with isolated pure functions
+- ✅ **Professional UI/UX**: Modern, responsive design with excellent accessibility
+- ✅ **Automated Testing**: Parity tests verify outputs match original calculations
+- ✅ **Production Ready**: Well-documented, maintainable, and deployment-ready code
 
-There are several ways of editing your application.
+## 🚀 Quick Start
 
-**Use Lovable**
+### Prerequisites
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/4af475ab-c7a5-4bb0-875d-85f82e0407af) and start prompting.
+- Node.js (v16 or higher)
+- npm or yarn
 
-Changes made via Lovable will be committed automatically to this repo.
+### Installation
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+```bash
+# Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# Navigate to project directory
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The application will be available at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📁 Project Structure
 
-**Use GitHub Codespaces**
+```
+src/
+├── components/
+│   ├── TradingCalculator.tsx    # Main calculator UI component
+│   └── ui/                      # Reusable UI components (shadcn)
+├── pages/
+│   ├── Index.tsx                # Main application page
+│   ├── ParityTest.tsx           # Automated parity testing suite
+│   └── Documentation.tsx        # Complete documentation
+├── utils/
+│   └── tradingMath.ts          # Pure mathematical functions (PRESERVE_FORMULA)
+└── index.css                    # Design system and styles
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🧮 Mathematical Formulas
 
-## What technologies are used for this project?
+All formulas are preserved exactly from the original implementation:
 
-This project is built with:
+### Core Calculations
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+**Divisor:**
+```
+baseRatio = (l + m) / (m - f)
+divisor = baseRatio^(nTrades-1) * (1 + ((m-f)*t)/100) - (((m-f)*t)/100)
+```
 
-## How can I deploy this project?
+**Loss Percentage (p):**
+```
+p = (l + f) * t
+```
 
-Simply open [Lovable](https://lovable.dev/projects/4af475ab-c7a5-4bb0-875d-85f82e0407af) and click on Share -> Publish.
+**Profit Percentage (q):**
+```
+q = (m - f) * t
+```
 
-## Can I connect a custom domain to my Lovable project?
+**Initial Trade:**
+```
+currentTrade = initialAmount / divisor
+```
 
-Yes, you can!
+**Win Result:**
+```
+result = currentTrade * (q / 100)
+nextTrade = finalAmount / divisor
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+**Loss Result:**
+```
+result = -currentTrade * (p / 100)
+nextTrade = winBaseline + (lossAccumulator * (p / q))
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 🧪 Testing
+
+The application includes an automated parity test suite accessible at `/tests`.
+
+### Running Tests
+
+1. Navigate to the application
+2. Click "Parity Tests" in the top-right navigation
+3. Click "Run All Tests" to execute the test suite
+
+### Test Coverage
+
+- ✅ Divisor calculation accuracy
+- ✅ P (loss percentage) calculation
+- ✅ Q (profit percentage) calculation
+- ✅ Initial trade amount calculation
+- ✅ Win result calculation
+- ✅ Loss result calculation
+- ✅ Multiple parameter combinations
+
+All tests verify numeric precision within 0.0001 tolerance.
+
+## 📖 Documentation
+
+Complete documentation is available in the application at `/docs`, including:
+
+- Architecture overview
+- Mathematical formulas with explanations
+- Parameter descriptions
+- Feature list
+- Testing methodology
+
+## 🎨 Features
+
+- **Real-time Calculations**: All values update instantly as parameters change
+- **Undo/Redo Support**: Complete history management for all trade operations
+- **Trade Simulation**: Simulate multiple winning trades up to any serial number
+- **Statistics Dashboard**: Track total trades, wins, losses, and percentages
+- **Responsive Design**: Mobile-first design that works beautifully on all devices
+- **Accessible**: WCAG-friendly with semantic HTML and proper ARIA attributes
+
+## 🔧 Configuration
+
+### Parameters
+
+| Parameter | Symbol | Description | Default |
+|-----------|--------|-------------|---------|
+| Initial Amount | - | Starting capital | 6500 |
+| 1st Win after n Trade | n | Trades until first win | 7 |
+| Loss % Captured | l | Loss percentage per trade | 0.5 |
+| Profit % Captured | m | Profit percentage per trade | 0.8 |
+| Leverage | t | Trading leverage multiplier | 50 |
+| Fee+GST | f | Combined fees and GST | 0.12 |
+
+## 🚢 Deployment
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+The production-ready files will be in the `dist` directory.
+
+### Deploy to Lovable
+
+1. Open [Lovable](https://lovable.dev/projects/4af475ab-c7a5-4bb0-875d-85f82e0407af)
+2. Click Share → Publish
+3. Your app will be live!
+
+### Custom Domain
+
+To connect a custom domain:
+1. Navigate to Project > Settings > Domains
+2. Click Connect Domain
+3. Follow the instructions
+
+## 🛠️ Technology Stack
+
+- **React** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **Tailwind CSS** - Styling
+- **shadcn/ui** - UI components
+- **React Router** - Navigation
+
+## ✨ Key Improvements Over Original
+
+1. **Modular Code**: Separated UI from business logic
+2. **Type Safety**: Full TypeScript implementation
+3. **Testing**: Automated parity tests
+4. **Responsive**: Works perfectly on mobile and desktop
+5. **Maintainable**: Clean code structure with documentation
+6. **Accessible**: WCAG-compliant accessibility features
+7. **Modern UI**: Professional trading dashboard aesthetic
+8. **No Build Required**: Can run directly in browser (dev mode)
+
+## 📝 Development Notes
+
+### Formula Preservation
+
+All mathematical functions in `src/utils/tradingMath.ts` are marked with `PRESERVE_FORMULA` comments. These functions must NOT be modified to maintain parity with the original calculator.
+
+### Adding Test Vectors
+
+To add new test cases, edit `src/pages/ParityTest.tsx` and add entries to the `testVectors` array.
+
+## 🤝 Credits
+
+**Original Calculator by: Manish Ranjan**
+
+This refactored version maintains complete fidelity to the original mathematical implementation while providing modern development practices and user experience improvements.
+
+## 📄 License
+
+This project maintains the intellectual property of the original calculator formulas by Manish Ranjan.
+
+## 🔗 Links
+
+- [Lovable Project](https://lovable.dev/projects/4af475ab-c7a5-4bb0-875d-85f82e0407af)
+- [Documentation](https://docs.lovable.dev/)
+
+---
+
+Built with ❤️ preserving the mathematical genius of the original calculator
