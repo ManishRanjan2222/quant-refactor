@@ -16,6 +16,8 @@ import {
   type ComputedParams
 } from '@/utils/tradingMath';
 import { Undo2, Redo2 } from 'lucide-react';
+import { useFirebaseSync } from '@/hooks/useFirebaseSync';
+import { toast } from 'sonner';
 
 interface TradeRow {
   sl: number;
@@ -59,6 +61,55 @@ export default function TradingCalculator() {
   const [historyStack, setHistoryStack] = useState<CalculatorState[]>([]);
   const [redoStack, setRedoStack] = useState<CalculatorState[]>([]);
   const [initialized, setInitialized] = useState(false);
+
+  const { saveProgress, loadProgress } = useFirebaseSync();
+
+  // Load saved progress on mount
+  useEffect(() => {
+    const loadSaved = async () => {
+      const saved = await loadProgress();
+      if (saved) {
+        setInitialAmount(saved.initialAmount);
+        setParams({ nTrades: saved.nTrades, l: saved.l, m: saved.m, t: saved.t, f: saved.f });
+        setTotalResult(saved.totalResult);
+        setCurrentTrade(saved.currentTrade);
+        setWinBaseline(saved.winBaseline);
+        setLossAccumulator(saved.lossAccumulator);
+        setTradeCount(saved.tradeCount);
+        setRows(saved.rows);
+        setHistoryStack(saved.history || []);
+        setRedoStack(saved.redoStack || []);
+        if (saved.rows.length > 0) setInitialized(true);
+        toast.success('Progress loaded from cloud');
+      }
+    };
+    loadSaved();
+  }, [loadProgress]);
+
+  // Auto-save whenever state changes
+  useEffect(() => {
+    if (initialized) {
+      const timeoutId = setTimeout(() => {
+        saveProgress({
+          initialAmount,
+          nTrades: params.nTrades,
+          l: params.l,
+          m: params.m,
+          t: params.t,
+          f: params.f,
+          totalResult,
+          currentTrade,
+          winBaseline,
+          lossAccumulator,
+          tradeCount,
+          rows,
+          history: historyStack,
+          redoStack
+        });
+      }, 1000); // Debounce saves by 1 second
+      return () => clearTimeout(timeoutId);
+    }
+  }, [initialized, initialAmount, params, totalResult, currentTrade, winBaseline, lossAccumulator, tradeCount, rows, historyStack, redoStack, saveProgress]);
 
   // Update computed params whenever inputs change
   useEffect(() => {
