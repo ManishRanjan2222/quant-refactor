@@ -3,6 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useNavigate } from 'react-router-dom';
+import Header from '@/components/Header';
 
 declare global {
   interface Window {
@@ -12,6 +15,8 @@ declare global {
 
 const Upgrade = () => {
   const { user } = useAuth();
+  const { createSubscription } = useSubscription();
+  const navigate = useNavigate();
 
   const plans = [
     {
@@ -80,20 +85,34 @@ const Upgrade = () => {
 
   const initiatePayment = (plan: typeof plans[0]) => {
     const options = {
-      key: 'rzp_test_YOUR_KEY_HERE', // Replace with your Razorpay key
+      key: 'rzp_test_1DP5mmOlF5G5ag', // Test key from uploaded file
       amount: plan.razorpayAmount,
       currency: 'INR',
-      name: 'Trading Calculator',
+      name: 'AMMC',
       description: `${plan.name} Plan Subscription`,
       image: '/favicon.ico',
-      handler: function (response: any) {
-        toast.success('Payment successful! Your plan has been upgraded.');
-        console.log('Payment ID:', response.razorpay_payment_id);
-        // Here you would typically save the subscription to Firebase
+      handler: async function (response: any) {
+        try {
+          // Save subscription to Firebase
+          await createSubscription(
+            plan.planId,
+            plan.name,
+            1, // 1 month duration
+            response.razorpay_payment_id
+          );
+          
+          toast.success('Payment successful! Your subscription is now active.');
+          setTimeout(() => {
+            navigate('/');
+          }, 2000);
+        } catch (error) {
+          console.error('Error saving subscription:', error);
+          toast.error('Payment received but failed to activate subscription. Please contact support.');
+        }
       },
       prefill: {
         email: user?.email || '',
-        contact: '',
+        name: user?.displayName || '',
       },
       theme: {
         color: '#3b82f6',
@@ -101,37 +120,55 @@ const Upgrade = () => {
       modal: {
         ondismiss: function() {
           toast.info('Payment cancelled');
-        }
+        },
+        confirm_close: true
       }
     };
 
-    const razorpay = new window.Razorpay(options);
-    razorpay.open();
+    try {
+      const razorpay = new window.Razorpay(options);
+      razorpay.on('payment.failed', function (response: any) {
+        toast.error('Payment failed: ' + response.error.description);
+      });
+      razorpay.open();
+    } catch (error) {
+      console.error('Error opening Razorpay:', error);
+      toast.error('Failed to open payment gateway. Please try again.');
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Upgrade Your Plan</h1>
-          <p className="text-xl text-muted-foreground">
-            Choose the perfect plan for your trading needs
-          </p>
-        </div>
+    <>
+      <Header />
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-card p-4 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
+              Upgrade Your Plan
+            </h1>
+            <p className="text-xl text-muted-foreground">
+              Choose the perfect plan for your trading needs
+            </p>
+          </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {plans.map((plan) => (
-            <Card key={plan.planId} className={plan.popular ? 'border-primary shadow-lg' : ''}>
-              <CardHeader>
-                {plan.popular && (
-                  <div className="text-xs font-semibold text-primary mb-2">MOST POPULAR</div>
-                )}
-                <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                <CardDescription>
-                  <span className="text-3xl font-bold text-foreground">{plan.price}</span>
-                  <span className="text-muted-foreground">{plan.period}</span>
-                </CardDescription>
-              </CardHeader>
+          <div className="grid md:grid-cols-3 gap-8">
+            {plans.map((plan) => (
+              <Card 
+                key={plan.planId} 
+                className={`bg-card/50 backdrop-blur-xl ${plan.popular ? 'border-primary shadow-[var(--shadow-glow)] scale-105' : 'border-border'}`}
+              >
+                <CardHeader>
+                  {plan.popular && (
+                    <div className="inline-block px-3 py-1 mb-4 text-xs font-semibold bg-gradient-to-r from-primary to-primary-glow text-primary-foreground rounded-full">
+                      MOST POPULAR
+                    </div>
+                  )}
+                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                  <CardDescription>
+                    <span className="text-4xl font-bold text-foreground">{plan.price}</span>
+                    <span className="text-muted-foreground">{plan.period}</span>
+                  </CardDescription>
+                </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
                   {plan.features.map((feature, index) => (
@@ -142,26 +179,27 @@ const Upgrade = () => {
                   ))}
                 </ul>
               </CardContent>
-              <CardFooter>
-                <Button
-                  onClick={() => handleUpgrade(plan)}
-                  className="w-full"
-                  variant={plan.popular ? 'default' : 'outline'}
-                  size="lg"
-                >
-                  Subscribe Now
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+                <CardFooter>
+                  <Button
+                    onClick={() => handleUpgrade(plan)}
+                    className={`w-full ${plan.popular ? 'bg-gradient-to-r from-primary to-primary-glow hover:shadow-[var(--shadow-glow)]' : ''}`}
+                    variant={plan.popular ? 'default' : 'outline'}
+                    size="lg"
+                  >
+                    Subscribe Now
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
 
-        <div className="mt-12 text-center text-sm text-muted-foreground">
-          <p>All plans include a 7-day money-back guarantee</p>
-          <p className="mt-2">Need a custom plan? Contact us at support@tradingcalculator.com</p>
+          <div className="mt-12 text-center text-sm text-muted-foreground">
+            <p>All plans include a 7-day money-back guarantee</p>
+            <p className="mt-2">Need a custom plan? Contact us at support@ammc.app</p>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

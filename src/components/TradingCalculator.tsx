@@ -17,6 +17,8 @@ import {
 } from '@/utils/tradingMath';
 import { Undo2, Redo2 } from 'lucide-react';
 import { useFirebaseSync } from '@/hooks/useFirebaseSync';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 interface TradeRow {
@@ -39,6 +41,8 @@ interface CalculatorState {
 }
 
 export default function TradingCalculator() {
+  const navigate = useNavigate();
+  const { hasActiveSubscription } = useSubscription();
   const [params, setParams] = useState<TradingParams>({
     nTrades: 7,
     l: 0.5,
@@ -145,6 +149,17 @@ export default function TradingCalculator() {
   };
 
   const initialize = () => {
+    if (!hasActiveSubscription) {
+      toast.error('Subscription required', {
+        description: 'Please subscribe to use the calculator',
+        action: {
+          label: 'Upgrade',
+          onClick: () => navigate('/upgrade'),
+        },
+      });
+      return;
+    }
+
     if (isNaN(initialAmount) || initialAmount <= 0) {
       alert('Please enter a valid positive Initial Amount.');
       return;
