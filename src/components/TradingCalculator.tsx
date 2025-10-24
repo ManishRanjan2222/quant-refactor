@@ -337,8 +337,7 @@ export default function TradingCalculator() {
     setHistoryStack([]);
     setRedoStack([]);
     setInitialized(true);
-
-    setTimeout(() => saveState(), 0);
+    // Note: Simulation mode does not save to Firebase
   };
 
   const undoAction = () => {
@@ -372,10 +371,9 @@ export default function TradingCalculator() {
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <Card className="p-6 bg-white/80 backdrop-blur border-none shadow-lg">
-          <h1 className="text-3xl md:text-4xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Advanced Trading Calculator
+          <h1 className="text-3xl md:text-4xl font-bold text-center bg-gradient-to-r from-primary via-accent to-primary-glow bg-clip-text text-transparent">
+            Advanced Money Management Calculator
           </h1>
-          <p className="text-center text-muted-foreground mt-2">by Manish Ranjan</p>
         </Card>
 
         {/* Parameter Inputs */}
@@ -615,13 +613,6 @@ export default function TradingCalculator() {
                     </tr>
                   ))}
                 </tbody>
-                <tfoot>
-                  <tr>
-                    <td colSpan={5} className="border border-border p-3 text-center italic bg-muted/50 text-sm text-muted-foreground">
-                      © Manish Ranjan
-                    </td>
-                  </tr>
-                </tfoot>
               </table>
             </div>
           </Card>

@@ -15,8 +15,26 @@ declare global {
 
 const Upgrade = () => {
   const { user } = useAuth();
-  const { createSubscription } = useSubscription();
+  const { createSubscription, subscription } = useSubscription();
   const navigate = useNavigate();
+
+  // Define plan hierarchy for comparison
+  const planHierarchy: { [key: string]: number } = {
+    'basic': 1,
+    'professional': 2,
+    'enterprise': 3
+  };
+
+  const getCurrentPlanLevel = () => {
+    if (!subscription?.isActive) return 0;
+    return planHierarchy[subscription.planId] || 0;
+  };
+
+  const isPlanDisabled = (planId: string) => {
+    const currentLevel = getCurrentPlanLevel();
+    const planLevel = planHierarchy[planId] || 0;
+    return planLevel <= currentLevel;
+  };
 
   const plans = [
     {
@@ -182,11 +200,12 @@ const Upgrade = () => {
                 <CardFooter>
                   <Button
                     onClick={() => handleUpgrade(plan)}
+                    disabled={isPlanDisabled(plan.planId)}
                     className={`w-full ${plan.popular ? 'bg-gradient-to-r from-primary to-primary-glow hover:shadow-[var(--shadow-glow)]' : ''}`}
                     variant={plan.popular ? 'default' : 'outline'}
                     size="lg"
                   >
-                    Subscribe Now
+                    {isPlanDisabled(plan.planId) ? 'Current Plan' : 'Subscribe Now'}
                   </Button>
                 </CardFooter>
               </Card>

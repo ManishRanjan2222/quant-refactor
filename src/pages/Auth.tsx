@@ -40,7 +40,7 @@ const Auth = () => {
         {/* Sign in card */}
         <div className="w-full max-w-md">
           <div className="bg-card/50 backdrop-blur-xl border border-border rounded-2xl p-8 shadow-[var(--shadow-card)]">
-            <h2 className="text-2xl font-semibold mb-2 text-center">Welcome Back</h2>
+            <h2 className="text-2xl font-semibold mb-2 text-center text-foreground">Get Started</h2>
             <p className="text-muted-foreground text-center mb-8">
               Sign in to access your trading dashboard
             </p>

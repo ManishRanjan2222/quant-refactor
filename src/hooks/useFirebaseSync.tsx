@@ -28,8 +28,10 @@ export const useFirebaseSync = () => {
     if (!user) return;
 
     try {
+      // Exclude history and redoStack from Firebase saves
+      const { history, redoStack, ...dataToSave } = data;
       await setDoc(doc(db, 'userProgress', user.uid), {
-        ...data,
+        ...dataToSave,
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
