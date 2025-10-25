@@ -367,17 +367,17 @@ export default function TradingCalculator() {
   const stats = calculateStats(rows);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-background via-secondary to-muted p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <Card className="p-6 bg-white/80 backdrop-blur border-none shadow-lg">
+        <Card className="p-6 bg-card/90 backdrop-blur border-none shadow-lg">
           <h1 className="text-3xl md:text-4xl font-bold text-center bg-gradient-to-r from-primary via-accent to-primary-glow bg-clip-text text-transparent">
             Advanced Money Management Calculator
           </h1>
         </Card>
 
         {/* Parameter Inputs */}
-        <Card className="p-6 bg-white/80 backdrop-blur border-none shadow-lg">
+        <Card className="p-6 bg-card/90 backdrop-blur border-none shadow-lg">
           <h2 className="text-xl font-semibold mb-4 text-foreground">Trading Parameters</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
@@ -447,7 +447,7 @@ export default function TradingCalculator() {
         </Card>
 
         {/* Computed Values */}
-        <Card className="p-6 bg-white/80 backdrop-blur border-none shadow-lg">
+        <Card className="p-6 bg-card/90 backdrop-blur border-none shadow-lg">
           <h2 className="text-xl font-semibold mb-4 text-foreground">Computed Values</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-1">
@@ -469,11 +469,11 @@ export default function TradingCalculator() {
               </div>
             </div>
             <div className="space-y-1">
-              <Label className="text-sm text-muted-foreground">Change (%/Amount)</Label>
-              <div className={`text-lg font-bold p-3 rounded-md ${
-                change.percent > 0 ? 'bg-green-100 text-green-700' : 
-                change.percent < 0 ? 'bg-red-100 text-red-700' : 
-                'bg-muted text-foreground'
+              <Label className="text-sm text-foreground/70">Change (%/Amount)</Label>
+              <div className={`text-lg font-bold p-3 rounded-md border ${
+                change.percent > 0 ? 'bg-green-500/20 text-green-400 border-green-500/30' : 
+                change.percent < 0 ? 'bg-red-500/20 text-red-400 border-red-500/30' : 
+                'bg-muted text-foreground border-border'
               }`}>
                 {change.percent.toFixed(2)}% / {change.amount.toFixed(2)}
               </div>
@@ -482,7 +482,7 @@ export default function TradingCalculator() {
         </Card>
 
         {/* Simulation */}
-        <Card className="p-6 bg-white/80 backdrop-blur border-none shadow-lg">
+        <Card className="p-6 bg-card/90 backdrop-blur border-none shadow-lg">
           <h2 className="text-xl font-semibold mb-4 text-foreground">Simulation</h2>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 space-y-2">
@@ -505,24 +505,24 @@ export default function TradingCalculator() {
         </Card>
 
         {/* Stats */}
-        <Card className="p-6 bg-white/80 backdrop-blur border-none shadow-lg">
+        <Card className="p-6 bg-card/90 backdrop-blur border-none shadow-lg">
           <h2 className="text-xl font-semibold mb-4 text-foreground">Statistics</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <Label className="text-sm text-muted-foreground">Total Trades</Label>
-              <div className="text-2xl font-bold text-foreground bg-muted p-3 rounded-md text-center">
+              <Label className="text-sm text-foreground/70">Total Trades</Label>
+              <div className="text-2xl font-bold text-foreground bg-secondary p-3 rounded-md text-center border border-border">
                 {stats.total}
               </div>
             </div>
             <div className="space-y-1">
-              <Label className="text-sm text-muted-foreground">Wins</Label>
-              <div className="text-2xl font-bold text-green-700 bg-green-100 p-3 rounded-md text-center">
+              <Label className="text-sm text-foreground/70">Wins</Label>
+              <div className="text-2xl font-bold text-green-400 bg-green-500/20 p-3 rounded-md text-center border border-green-500/30">
                 {stats.wins} ({stats.winPercent.toFixed(2)}%)
               </div>
             </div>
             <div className="space-y-1">
-              <Label className="text-sm text-muted-foreground">Losses</Label>
-              <div className="text-2xl font-bold text-red-700 bg-red-100 p-3 rounded-md text-center">
+              <Label className="text-sm text-foreground/70">Losses</Label>
+              <div className="text-2xl font-bold text-red-400 bg-red-500/20 p-3 rounded-md text-center border border-red-500/30">
                 {stats.losses} ({stats.lossPercent.toFixed(2)}%)
               </div>
             </div>
@@ -530,7 +530,7 @@ export default function TradingCalculator() {
         </Card>
 
         {/* Action Buttons */}
-        <Card className="p-6 bg-white/80 backdrop-blur border-none shadow-lg">
+        <Card className="p-6 bg-card/90 backdrop-blur border-none shadow-lg">
           <div className="flex flex-wrap gap-3 justify-center">
             <Button 
               onClick={initialize}
@@ -577,37 +577,37 @@ export default function TradingCalculator() {
 
         {/* Trading Table */}
         {rows.length > 0 && (
-          <Card className="p-6 bg-white/80 backdrop-blur border-none shadow-lg overflow-hidden">
+          <Card className="p-6 bg-card/90 backdrop-blur border-none shadow-lg overflow-hidden">
             <h2 className="text-xl font-semibold mb-4 text-foreground">Trade History</h2>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-muted">
-                    <th className="border border-border p-3 text-center font-semibold">Sl. No.</th>
-                    <th className="border border-border p-3 text-center font-semibold">Trade Amount (Aₙ)</th>
-                    <th className="border border-border p-3 text-center font-semibold">Loss/Win Result</th>
-                    <th className="border border-border p-3 text-center font-semibold">Total Loss/Win</th>
-                    <th className="border border-border p-3 text-center font-semibold">Final Amount</th>
+                  <tr className="bg-secondary">
+                    <th className="border border-border p-3 text-center font-semibold text-secondary-foreground">Sl. No.</th>
+                    <th className="border border-border p-3 text-center font-semibold text-secondary-foreground">Trade Amount (Aₙ)</th>
+                    <th className="border border-border p-3 text-center font-semibold text-secondary-foreground">Loss/Win Result</th>
+                    <th className="border border-border p-3 text-center font-semibold text-secondary-foreground">Total Loss/Win</th>
+                    <th className="border border-border p-3 text-center font-semibold text-secondary-foreground">Final Amount</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((row) => (
                     <tr key={row.sl} className="hover:bg-muted/50 transition-colors">
-                      <td className="border border-border p-3 text-center">{row.sl}</td>
-                      <td className="border border-border p-3 text-center font-mono">
+                      <td className="border border-border p-3 text-center text-foreground">{row.sl}</td>
+                      <td className="border border-border p-3 text-center font-mono text-foreground">
                         {typeof row.tradeAmount === 'number' ? row.tradeAmount.toFixed(4) : row.tradeAmount}
                       </td>
                       <td className={`border border-border p-3 text-center font-mono font-semibold ${
-                        typeof row.result === 'number' && row.result > 0 ? 'text-green-700' :
-                        typeof row.result === 'number' && row.result < 0 ? 'text-red-700' :
-                        ''
+                        typeof row.result === 'number' && row.result > 0 ? 'text-green-400' :
+                        typeof row.result === 'number' && row.result < 0 ? 'text-red-400' :
+                        'text-foreground'
                       }`}>
                         {row.result}
                       </td>
-                      <td className="border border-border p-3 text-center font-mono">
+                      <td className="border border-border p-3 text-center font-mono text-foreground">
                         {typeof row.total === 'number' ? row.total.toFixed(4) : row.total}
                       </td>
-                      <td className="border border-border p-3 text-center font-mono font-semibold">
+                      <td className="border border-border p-3 text-center font-mono font-semibold text-foreground">
                         {typeof row.finalAmount === 'number' ? row.finalAmount.toFixed(4) : row.finalAmount}
                       </td>
                     </tr>
