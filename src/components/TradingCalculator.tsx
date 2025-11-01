@@ -65,6 +65,7 @@ export default function TradingCalculator() {
   const [historyStack, setHistoryStack] = useState<CalculatorState[]>([]);
   const [redoStack, setRedoStack] = useState<CalculatorState[]>([]);
   const [initialized, setInitialized] = useState(false);
+  const [isSimulationMode, setIsSimulationMode] = useState(false);
 
   const { saveProgress, loadProgress } = useFirebaseSync();
 
@@ -90,9 +91,9 @@ export default function TradingCalculator() {
     loadSaved();
   }, [loadProgress]);
 
-  // Auto-save whenever state changes
+  // Auto-save whenever state changes (except during simulation)
   useEffect(() => {
-    if (initialized) {
+    if (initialized && !isSimulationMode) {
       const timeoutId = setTimeout(() => {
         saveProgress({
           initialAmount,
@@ -113,7 +114,7 @@ export default function TradingCalculator() {
       }, 1000); // Debounce saves by 1 second
       return () => clearTimeout(timeoutId);
     }
-  }, [initialized, initialAmount, params, totalResult, currentTrade, winBaseline, lossAccumulator, tradeCount, rows, historyStack, redoStack, saveProgress]);
+  }, [initialized, isSimulationMode, initialAmount, params, totalResult, currentTrade, winBaseline, lossAccumulator, tradeCount, rows, historyStack, redoStack, saveProgress]);
 
   // Update computed params whenever inputs change
   useEffect(() => {
@@ -285,6 +286,9 @@ export default function TradingCalculator() {
       return;
     }
 
+    // Enable simulation mode to prevent Firebase saves
+    setIsSimulationMode(true);
+
     const computedParams = getComputedParams(params);
     
     let newTotalResult = 0;
@@ -337,7 +341,9 @@ export default function TradingCalculator() {
     setHistoryStack([]);
     setRedoStack([]);
     setInitialized(true);
-    // Note: Simulation mode does not save to Firebase
+    
+    // Disable simulation mode after state updates
+    setTimeout(() => setIsSimulationMode(false), 100);
   };
 
   const undoAction = () => {
