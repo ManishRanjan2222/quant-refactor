@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -65,7 +65,9 @@ export default function TradingCalculator() {
   const [historyStack, setHistoryStack] = useState<CalculatorState[]>([]);
   const [redoStack, setRedoStack] = useState<CalculatorState[]>([]);
   const [initialized, setInitialized] = useState(false);
-  const [isSimulationMode, setIsSimulationMode] = useState(false);
+  
+  // Use ref to track simulation mode without triggering re-renders
+  const isSimulationModeRef = useRef(false);
 
   const { saveProgress, loadProgress } = useFirebaseSync();
 
@@ -93,7 +95,7 @@ export default function TradingCalculator() {
 
   // Auto-save whenever state changes (except during simulation)
   useEffect(() => {
-    if (initialized && !isSimulationMode) {
+    if (initialized && !isSimulationModeRef.current) {
       const timeoutId = setTimeout(() => {
         saveProgress({
           initialAmount,
@@ -109,12 +111,12 @@ export default function TradingCalculator() {
           tradeCount,
           rows,
           history: historyStack,
-          redoStack
+          redoStack,
         });
       }, 1000); // Debounce saves by 1 second
       return () => clearTimeout(timeoutId);
     }
-  }, [initialized, isSimulationMode, initialAmount, params, totalResult, currentTrade, winBaseline, lossAccumulator, tradeCount, rows, historyStack, redoStack, saveProgress]);
+  }, [initialized, initialAmount, params, totalResult, currentTrade, winBaseline, lossAccumulator, tradeCount, rows, historyStack, redoStack, saveProgress]);
 
   // Update computed params whenever inputs change
   useEffect(() => {
@@ -287,7 +289,7 @@ export default function TradingCalculator() {
     }
 
     // Enable simulation mode to prevent Firebase saves
-    setIsSimulationMode(true);
+    isSimulationModeRef.current = true;
 
     const computedParams = getComputedParams(params);
     
@@ -343,7 +345,9 @@ export default function TradingCalculator() {
     setInitialized(true);
     
     // Disable simulation mode after state updates
-    setTimeout(() => setIsSimulationMode(false), 100);
+    setTimeout(() => {
+      isSimulationModeRef.current = false;
+    }, 100);
   };
 
   const undoAction = () => {
