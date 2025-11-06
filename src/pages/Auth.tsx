@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import LandingHeader from '@/components/LandingHeader';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Calculator, Cloud, Shield, Sparkles } from 'lucide-react';
 
 const Auth = () => {
   const { user, signIn } = useAuth();
@@ -66,71 +67,113 @@ const Auth = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-card">
+    <div className="min-h-screen bg-background relative overflow-hidden">
       <LandingHeader
         onLoginClick={signIn}
         onHowItWorksClick={() => scrollToSection(howItWorksRef)}
         onPricingClick={() => scrollToSection(pricingRef)}
       />
 
-      {/* Animated background elements */}
+      {/* Enhanced background with grid and orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        {/* Grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(240_10%_15%/0.1)_1px,transparent_1px),linear-gradient(to_bottom,hsl(240_10%_15%/0.1)_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+        
+        {/* Purple gradient orbs */}
+        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-gradient-to-br from-primary/30 via-primary-glow/20 to-transparent rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-gradient-to-tr from-accent/25 via-primary-glow/15 to-transparent rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-gradient-to-br from-primary-glow/20 to-transparent rounded-full blur-3xl animate-glow-pulse"></div>
       </div>
 
       {/* Hero Section */}
       <section className="relative z-10 pt-32 pb-20 px-4">
-        <div className="container mx-auto max-w-4xl text-center">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent animate-fade-in">
-            Advanced Money Management Calculator
+        <div className="container mx-auto max-w-5xl text-center">
+          {/* Promotional badge */}
+          <div className="mb-8 animate-fade-in">
+            <Badge className="bg-gradient-to-r from-primary via-primary-glow to-accent text-white border-0 px-6 py-2 text-sm font-semibold rounded-full shadow-lg shadow-primary/50">
+              <Sparkles className="w-4 h-4 mr-2 inline" />
+              Professional Trading Tools
+            </Badge>
+          </div>
+          
+          {/* Main headline - split across lines with gradient */}
+          <h1 className="text-6xl md:text-8xl font-black mb-8 leading-tight animate-fade-in">
+            <span className="block bg-gradient-to-r from-white via-white to-white/90 bg-clip-text text-transparent">
+              World's Most
+            </span>
+            <span className="block bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
+              Powerful Trading
+            </span>
+            <span className="block bg-gradient-to-r from-accent via-primary-glow to-primary bg-clip-text text-transparent">
+              Calculator
+            </span>
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-4 animate-fade-in">
-            Professional trading calculator for precise risk management and position sizing
-          </p>
-          <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto animate-fade-in">
+          
+          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
             Make smarter trading decisions with advanced algorithms, real-time calculations, and comprehensive analytics
           </p>
-          <Button
-            onClick={signIn}
-            size="lg"
-            className="h-14 px-8 text-lg bg-gradient-to-r from-primary to-primary-glow hover:shadow-[var(--shadow-glow)] transition-all animate-scale-in"
-          >
-            Get Started Free
-          </Button>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-scale-in" style={{ animationDelay: '0.4s' }}>
+            <Button
+              onClick={signIn}
+              variant="aifiesta"
+              size="xl"
+              className="group"
+            >
+              Get Started Free
+              <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+            </Button>
+            <Button
+              onClick={() => scrollToSection(pricingRef)}
+              variant="outline"
+              size="xl"
+              className="border-2"
+            >
+              View Pricing
+            </Button>
+          </div>
         </div>
       </section>
 
       {/* Features Section */}
       <section className="relative z-10 py-20 px-4">
         <div className="container mx-auto max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground">
+          <h2 className="text-4xl md:text-5xl font-black text-center mb-4 text-foreground">
             Why Choose AMMC?
           </h2>
+          <p className="text-center text-muted-foreground mb-16 text-lg">
+            Everything you need for professional trading
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="bg-card/50 backdrop-blur-xl border-border hover:shadow-[var(--shadow-card)] transition-all">
-              <CardHeader>
-                <div className="text-5xl mb-4">📊</div>
-                <CardTitle>Smart Calculations</CardTitle>
-                <CardDescription>
+            <Card className="group bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 hover:border-primary/50 transition-all duration-300 rounded-3xl">
+              <CardHeader className="space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Calculator className="w-7 h-7 text-white" />
+                </div>
+                <CardTitle className="text-2xl">Smart Calculations</CardTitle>
+                <CardDescription className="text-base">
                   Advanced algorithms for precise risk management and optimal position sizing
                 </CardDescription>
               </CardHeader>
             </Card>
-            <Card className="bg-card/50 backdrop-blur-xl border-border hover:shadow-[var(--shadow-card)] transition-all">
-              <CardHeader>
-                <div className="text-5xl mb-4">💾</div>
-                <CardTitle>Cloud Sync</CardTitle>
-                <CardDescription>
+            <Card className="group bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 hover:border-primary/50 transition-all duration-300 rounded-3xl">
+              <CardHeader className="space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-glow to-accent flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Cloud className="w-7 h-7 text-white" />
+                </div>
+                <CardTitle className="text-2xl">Cloud Sync</CardTitle>
+                <CardDescription className="text-base">
                   Your data automatically synced across all devices in real-time
                 </CardDescription>
               </CardHeader>
             </Card>
-            <Card className="bg-card/50 backdrop-blur-xl border-border hover:shadow-[var(--shadow-card)] transition-all">
-              <CardHeader>
-                <div className="text-5xl mb-4">🔒</div>
-                <CardTitle>Bank-Level Security</CardTitle>
-                <CardDescription>
+            <Card className="group bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 hover:border-primary/50 transition-all duration-300 rounded-3xl">
+              <CardHeader className="space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent to-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Shield className="w-7 h-7 text-white" />
+                </div>
+                <CardTitle className="text-2xl">Bank-Level Security</CardTitle>
+                <CardDescription className="text-base">
                   Enterprise-grade encryption and security for your sensitive trading data
                 </CardDescription>
               </CardHeader>
@@ -140,41 +183,44 @@ const Auth = () => {
       </section>
 
       {/* How It Works Section */}
-      <section ref={howItWorksRef} className="relative z-10 py-20 px-4 bg-muted/20">
+      <section ref={howItWorksRef} className="relative z-10 py-20 px-4 bg-white/[0.02]">
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground">
+          <h2 className="text-4xl md:text-5xl font-black text-center mb-4 text-foreground">
             How It Works
           </h2>
+          <p className="text-center text-muted-foreground mb-16 text-lg">
+            Get started in three simple steps
+          </p>
           <div className="space-y-8">
-            <div className="flex gap-6 items-start">
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xl">
+            <div className="flex gap-6 items-start group">
+              <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform">
                 1
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2 text-foreground">Sign Up & Choose Your Plan</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-2xl font-bold mb-3 text-foreground">Sign Up & Choose Your Plan</h3>
+                <p className="text-muted-foreground text-lg">
                   Create your account with Google authentication and select the subscription plan that fits your trading needs.
                 </p>
               </div>
             </div>
-            <div className="flex gap-6 items-start">
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xl">
+            <div className="flex gap-6 items-start group">
+              <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-glow to-accent flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-primary-glow/30 group-hover:scale-110 transition-transform">
                 2
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2 text-foreground">Input Your Parameters</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-2xl font-bold mb-3 text-foreground">Input Your Parameters</h3>
+                <p className="text-muted-foreground text-lg">
                   Enter your capital, risk percentage, entry and exit prices, and let AMMC calculate optimal position sizing.
                 </p>
               </div>
             </div>
-            <div className="flex gap-6 items-start">
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xl">
+            <div className="flex gap-6 items-start group">
+              <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-primary flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-accent/30 group-hover:scale-110 transition-transform">
                 3
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2 text-foreground">Run Simulations & Analyze</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-2xl font-bold mb-3 text-foreground">Run Simulations & Analyze</h3>
+                <p className="text-muted-foreground text-lg">
                   Simulate multiple trades, track your performance, and make data-driven decisions with comprehensive analytics.
                 </p>
               </div>
@@ -186,52 +232,59 @@ const Auth = () => {
       {/* Pricing Section */}
       <section ref={pricingRef} className="relative z-10 py-20 px-4">
         <div className="container mx-auto max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">
+          <h2 className="text-4xl md:text-5xl font-black text-center mb-4 text-foreground">
             Choose Your Plan
           </h2>
-          <p className="text-center text-muted-foreground mb-12">
+          <p className="text-center text-muted-foreground mb-16 text-lg">
             Select the perfect plan for your trading journey
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {plans.map((plan) => (
               <Card
                 key={plan.name}
-                className={`relative bg-card/50 backdrop-blur-xl border-border hover:shadow-[var(--shadow-card)] transition-all ${
-                  plan.popular ? 'border-primary shadow-[var(--shadow-glow)]' : ''
+                className={`group relative bg-white/5 backdrop-blur-xl border-2 hover:bg-white/10 transition-all duration-300 rounded-3xl overflow-hidden ${
+                  plan.popular 
+                    ? 'border-primary shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow-lg)] scale-105' 
+                    : 'border-white/10 hover:border-primary/30'
                 }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
-                    Most Popular
+                  <div className="absolute -top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary-glow to-accent animate-glow-pulse"></div>
+                )}
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                    <Badge className="bg-gradient-to-r from-primary via-primary-glow to-accent text-white border-0 px-6 py-2 text-sm font-bold rounded-full shadow-lg shadow-primary/50 animate-glow-pulse">
+                      Most Popular
+                    </Badge>
                   </div>
                 )}
-                <CardHeader>
-                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                  <CardDescription>
-                    <span className="text-4xl font-bold text-foreground">{plan.price}</span>
-                    <span className="text-muted-foreground">/{plan.duration}</span>
+                <CardHeader className="space-y-4 pt-8">
+                  <CardTitle className="text-3xl font-black">{plan.name}</CardTitle>
+                  <CardDescription className="space-y-1">
+                    <div>
+                      <span className="text-5xl font-black text-foreground">{plan.price}</span>
+                      <span className="text-muted-foreground text-lg">/{plan.duration}</span>
+                    </div>
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
+                <CardContent className="space-y-4">
+                  <ul className="space-y-4">
                     {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-2">
-                        <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-muted-foreground">{feature}</span>
+                      <li key={feature} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                        <span className="text-foreground/90 text-base">{feature}</span>
                       </li>
                     ))}
                   </ul>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="pt-6">
                   <Button
                     onClick={signIn}
-                    className={`w-full ${
-                      plan.popular
-                        ? 'bg-gradient-to-r from-primary to-primary-glow hover:shadow-[var(--shadow-glow)]'
-                        : ''
-                    }`}
-                    variant={plan.popular ? 'default' : 'outline'}
+                    variant={plan.popular ? 'aifiesta' : 'outline'}
                     size="lg"
+                    className={`w-full text-base font-semibold ${
+                      !plan.popular ? 'border-2 hover:border-primary' : ''
+                    }`}
                   >
                     Get Started
                   </Button>
@@ -243,9 +296,9 @@ const Auth = () => {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 py-8 px-4 border-t border-border">
-        <div className="container mx-auto text-center text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} AMMC. All rights reserved.</p>
+      <footer className="relative z-10 py-12 px-4 border-t border-white/10 mt-20">
+        <div className="container mx-auto text-center">
+          <p className="text-muted-foreground text-lg">&copy; {new Date().getFullYear()} AMMC. All rights reserved.</p>
         </div>
       </footer>
     </div>
