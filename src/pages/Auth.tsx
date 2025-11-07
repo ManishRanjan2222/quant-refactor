@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
@@ -293,6 +294,94 @@ const Auth = () => {
               </Card>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="relative z-10 py-20 px-4 bg-white/[0.02]">
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-purple-400 to-primary bg-clip-text text-transparent">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Everything you need to know about AMMLogic.Trade
+            </p>
+          </div>
+
+          <Accordion type="single" collapsible className="space-y-4">
+            <AccordionItem value="item-1" className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl px-6 hover:bg-white/10 hover:border-primary/50 transition-all">
+              <AccordionTrigger className="text-lg font-semibold text-left py-6">
+                What is AMMLogic.Trade?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground pb-6">
+                AMMLogic.Trade is an advanced money management calculator designed for traders of all levels. It helps you calculate optimal position sizing, manage risk effectively, and simulate trading scenarios with professional-grade algorithms.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-2" className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl px-6 hover:bg-white/10 hover:border-primary/50 transition-all">
+              <AccordionTrigger className="text-lg font-semibold text-left py-6">
+                How does the risk calculator work?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground pb-6">
+                Our calculator uses your capital, risk percentage, entry and exit prices to determine the optimal position size. It factors in stop-loss levels and calculates your potential profit/loss to help you make informed trading decisions.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-3" className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl px-6 hover:bg-white/10 hover:border-primary/50 transition-all">
+              <AccordionTrigger className="text-lg font-semibold text-left py-6">
+                Can I use this for different markets?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground pb-6">
+                Yes! AMMLogic.Trade works for stocks, forex, crypto, and any other market where you need position sizing and risk management. The calculations are universal and adapt to your trading style.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-4" className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl px-6 hover:bg-white/10 hover:border-primary/50 transition-all">
+              <AccordionTrigger className="text-lg font-semibold text-left py-6">
+                Is my data saved automatically?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground pb-6">
+                Yes, all your calculations and trades are automatically synced to the cloud in real-time. You can access your data from any device, and it's encrypted with bank-level security.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-5" className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl px-6 hover:bg-white/10 hover:border-primary/50 transition-all">
+              <AccordionTrigger className="text-lg font-semibold text-left py-6">
+                What's included in the free plan?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground pb-6">
+                The free plan includes basic position sizing calculations and limited simulations. To unlock advanced features like unlimited calculations, detailed analytics, and export capabilities, upgrade to a paid plan.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-6" className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl px-6 hover:bg-white/10 hover:border-primary/50 transition-all">
+              <AccordionTrigger className="text-lg font-semibold text-left py-6">
+                How do I cancel my subscription?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground pb-6">
+                You can cancel your subscription anytime from your account settings. Your access will continue until the end of your billing period, and you won't be charged again.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-7" className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl px-6 hover:bg-white/10 hover:border-primary/50 transition-all">
+              <AccordionTrigger className="text-lg font-semibold text-left py-6">
+                Is there a mobile app?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground pb-6">
+                AMMLogic.Trade is a fully responsive web application that works perfectly on mobile browsers. You can access all features from your smartphone or tablet without downloading an app.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-8" className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl px-6 hover:bg-white/10 hover:border-primary/50 transition-all">
+              <AccordionTrigger className="text-lg font-semibold text-left py-6">
+                Can I export my trade history?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground pb-6">
+                Yes, Professional and Enterprise plans include export capabilities. You can download your trade history and analytics in CSV or PDF format for your records.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </section>
 

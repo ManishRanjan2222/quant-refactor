@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
-import ammcLogo from '@/assets/ammc-logo.png';
+import ammcLogo from '@/assets/ammlogic-logo.png';
 
 interface LandingHeaderProps {
   onLoginClick: () => void;

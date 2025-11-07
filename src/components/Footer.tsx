@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Linkedin, Instagram, Youtube } from 'lucide-react';
-import ammcLogo from '@/assets/ammc-logo.png';
+import ammcLogo from '@/assets/ammlogic-logo.png';
 
 const Footer = () => {
   return (

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, LogOut, Sparkles, HelpCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import ammcLogo from '@/assets/ammc-logo.png';
+import ammcLogo from '@/assets/ammlogic-logo.png';
 
 const Header = () => {
   const { user, signOut } = useAuth();
