@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import LandingHeader from '@/components/LandingHeader';
+import Footer from '@/components/Footer';
 import { CheckCircle2, Calculator, Cloud, Shield, Sparkles } from 'lucide-react';
 
 const Auth = () => {
@@ -139,7 +140,7 @@ const Auth = () => {
       <section className="relative z-10 py-20 px-4">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-4xl md:text-5xl font-black text-center mb-4 text-foreground">
-            Why Choose AMMC?
+            Why Choose AMMLogic.Trade?
           </h2>
           <p className="text-center text-muted-foreground mb-16 text-lg">
             Everything you need for professional trading
@@ -210,7 +211,7 @@ const Auth = () => {
               <div>
                 <h3 className="text-2xl font-bold mb-3 text-foreground">Input Your Parameters</h3>
                 <p className="text-muted-foreground text-lg">
-                  Enter your capital, risk percentage, entry and exit prices, and let AMMC calculate optimal position sizing.
+                  Enter your capital, risk percentage, entry and exit prices, and let AMMLogic.Trade calculate optimal position sizing.
                 </p>
               </div>
             </div>
@@ -296,11 +297,7 @@ const Auth = () => {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 py-12 px-4 border-t border-white/10 mt-20">
-        <div className="container mx-auto text-center">
-          <p className="text-muted-foreground text-lg">&copy; {new Date().getFullYear()} AMMC. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

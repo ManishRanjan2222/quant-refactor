@@ -17,9 +17,9 @@ const LandingHeader = ({ onLoginClick, onHowItWorksClick, onPricingClick }: Land
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo and Name - Left */}
         <div className="flex items-center gap-3">
-          <img src={ammcLogo} alt="AMMC Logo" className="w-10 h-10" />
+          <img src={ammcLogo} alt="AMMLogic.Trade Logo" className="w-10 h-10" />
           <span className="text-xl font-bold bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
-            AMMC
+            AMMLogic.Trade
           </span>
         </div>
 

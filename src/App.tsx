@@ -9,6 +9,9 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import HowItWorks from "./pages/HowItWorks";
 import Upgrade from "./pages/Upgrade";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Terms from "./pages/Terms";
+import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +28,9 @@ const App = () => (
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/how-it-works" element={<ProtectedRoute><HowItWorks /></ProtectedRoute>} />
             <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/contact" element={<Contact />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -37,9 +37,9 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-xl">
       <div className="container flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-          <img src={ammcLogo} alt="AMMC Logo" className="w-8 h-8" />
+          <img src={ammcLogo} alt="AMMLogic.Trade Logo" className="w-8 h-8" />
           <span className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            AMMC
+            AMMLogic.Trade
           </span>
         </Link>
 
@@ -57,8 +57,8 @@ const Header = () => {
           </SheetTrigger>
           <SheetContent side="right" className="bg-card border-border">
             <div className="flex items-center space-x-3 mb-8">
-              <img src={ammcLogo} alt="AMMC Logo" className="w-8 h-8" />
-              <span className="font-bold text-lg">AMMC</span>
+              <img src={ammcLogo} alt="AMMLogic.Trade Logo" className="w-8 h-8" />
+              <span className="font-bold text-lg">AMMLogic.Trade</span>
             </div>
             <nav className="flex flex-col space-y-4">
               <NavLinks />

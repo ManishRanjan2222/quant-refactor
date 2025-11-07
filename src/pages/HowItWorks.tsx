@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 const HowItWorks = () => {
   return (
@@ -12,7 +13,7 @@ const HowItWorks = () => {
               How It Works
             </h1>
             <p className="text-xl text-muted-foreground">
-              Understanding AMMC - Advanced Money Management Calculator
+              Understanding AMMLogic.Trade - Advanced Money Management Calculator
             </p>
           </div>
 
@@ -24,7 +25,7 @@ const HowItWorks = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  AMMC helps you manage your trades by calculating optimal trade amounts,
+                  AMMLogic.Trade helps you manage your trades by calculating optimal trade amounts,
                   tracking wins and losses, and maintaining a comprehensive history of your trading activity.
                 </p>
               </CardContent>
@@ -82,6 +83,7 @@ const HowItWorks = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };

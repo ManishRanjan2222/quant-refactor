@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 declare global {
   interface Window {
@@ -106,7 +107,7 @@ const Upgrade = () => {
       key: 'rzp_test_1DP5mmOlF5G5ag', // Test key from uploaded file
       amount: plan.razorpayAmount,
       currency: 'INR',
-      name: 'AMMC',
+      name: 'AMMLogic.Trade',
       description: `${plan.name} Plan Subscription`,
       image: '/favicon.ico',
       handler: async function (response: any) {
@@ -214,10 +215,11 @@ const Upgrade = () => {
 
           <div className="mt-12 text-center text-sm text-muted-foreground">
             <p>All plans include a 7-day money-back guarantee</p>
-            <p className="mt-2">Need a custom plan? Contact us at support@ammc.app</p>
+            <p className="mt-2">Need a custom plan? Contact us at support@ammlogic.trade</p>
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };
