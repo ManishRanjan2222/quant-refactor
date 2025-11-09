@@ -10,7 +10,7 @@ import Footer from '@/components/Footer';
 import { CheckCircle2, Calculator, Cloud, Shield, Sparkles } from 'lucide-react';
 
 const Auth = () => {
-  const { user, signIn } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const howItWorksRef = useRef<HTMLElement>(null);
   const pricingRef = useRef<HTMLElement>(null);
@@ -71,7 +71,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       <LandingHeader
-        onLoginClick={signIn}
+        onLoginClick={() => navigate('/login')}
         onHowItWorksClick={() => scrollToSection(howItWorksRef)}
         onPricingClick={() => scrollToSection(pricingRef)}
       />
@@ -117,7 +117,7 @@ const Auth = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-scale-in" style={{ animationDelay: '0.4s' }}>
             <Button
-              onClick={signIn}
+              onClick={() => navigate('/login')}
               variant="aifiesta"
               size="xl"
               className="group"
@@ -281,7 +281,7 @@ const Auth = () => {
                 </CardContent>
                 <CardFooter className="pt-6">
                   <Button
-                    onClick={signIn}
+                    onClick={() => navigate('/login')}
                     variant={plan.popular ? 'aifiesta' : 'outline'}
                     size="lg"
                     className={`w-full text-base font-semibold ${

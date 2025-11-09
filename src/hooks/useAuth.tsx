@@ -1,5 +1,14 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User, signInWithPopup, signOut as firebaseSignOut, onAuthStateChanged } from 'firebase/auth';
+import { 
+  User, 
+  signInWithPopup, 
+  signOut as firebaseSignOut, 
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  updateProfile
+} from 'firebase/auth';
 import { auth, googleProvider } from '@/config/firebase';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -8,7 +17,31 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, name?: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
+}
+
+const getAuthErrorMessage = (code: string): string => {
+  switch (code) {
+    case 'auth/email-already-in-use':
+      return 'Email already in use';
+    case 'auth/weak-password':
+      return 'Password should be at least 6 characters';
+    case 'auth/user-not-found':
+      return 'No account found with this email';
+    case 'auth/wrong-password':
+      return 'Incorrect password';
+    case 'auth/invalid-email':
+      return 'Invalid email address';
+    case 'auth/invalid-credential':
+      return 'Invalid email or password';
+    case 'auth/too-many-requests':
+      return 'Too many failed attempts. Please try again later';
+    default:
+      return 'Authentication failed. Please try again';
+  }
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,6 +70,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const signInWithEmail = async (email: string, password: string) => {
+    try {
+      await signInWithEmailAndPassword(auth, email.trim(), password);
+      toast.success('Welcome back!');
+      navigate('/');
+    } catch (error: any) {
+      const message = getAuthErrorMessage(error.code);
+      toast.error(message);
+      throw error;
+    }
+  };
+
+  const signUpWithEmail = async (email: string, password: string, name?: string) => {
+    try {
+      const { user } = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      
+      if (name && name.trim()) {
+        await updateProfile(user, { displayName: name.trim() });
+      }
+      
+      toast.success('Account created successfully!');
+      navigate('/');
+    } catch (error: any) {
+      const message = getAuthErrorMessage(error.code);
+      toast.error(message);
+      throw error;
+    }
+  };
+
+  const resetPassword = async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email.trim());
+      toast.success('Password reset email sent!');
+    } catch (error: any) {
+      const message = getAuthErrorMessage(error.code);
+      toast.error(message);
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
@@ -48,7 +121,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signInWithEmail, signUpWithEmail, resetPassword, signOut }}>
       {children}
     </AuthContext.Provider>
   );
