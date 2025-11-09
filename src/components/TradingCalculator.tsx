@@ -200,6 +200,17 @@ export default function TradingCalculator() {
   };
 
   const handleTrade = (type: 'win' | 'loss') => {
+    if (!hasActiveSubscription) {
+      toast.error('Subscription required', {
+        description: 'Please subscribe to use the calculator',
+        action: {
+          label: 'Upgrade',
+          onClick: () => navigate('/upgrade'),
+        },
+      });
+      return;
+    }
+
     const computedParams = getComputedParams(params);
     
     let result = 0;
@@ -561,14 +572,14 @@ export default function TradingCalculator() {
             </Button>
             <Button 
               onClick={() => handleTrade('win')}
-              disabled={!initialized}
+              disabled={!initialized || !hasActiveSubscription}
               className="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 disabled:opacity-50"
             >
               Win
             </Button>
             <Button 
               onClick={() => handleTrade('loss')}
-              disabled={!initialized}
+              disabled={!initialized || !hasActiveSubscription}
               className="bg-red-600 hover:bg-red-700 text-white font-semibold px-8 disabled:opacity-50"
             >
               Loss
