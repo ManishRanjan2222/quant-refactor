@@ -278,6 +278,17 @@ export default function TradingCalculator() {
   };
 
   const showTrades = () => {
+    if (!hasActiveSubscription) {
+      toast.error('Subscription required', {
+        description: 'Please subscribe to use the calculator',
+        action: {
+          label: 'Upgrade',
+          onClick: () => navigate('/upgrade'),
+        },
+      });
+      return;
+    }
+
     if (showSerial === '' || showSerial < 1) {
       alert('Please enter a valid serial number.');
       return;
