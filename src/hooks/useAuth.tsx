@@ -9,15 +9,13 @@ import {
   sendPasswordResetEmail,
   updateProfile
 } from 'firebase/auth';
-import { auth, googleProvider, db } from '@/config/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { auth, googleProvider } from '@/config/firebase';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  isAdmin: boolean;
   signIn: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, name?: string) => Promise<void>;
@@ -51,35 +49,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
-      
-      if (user) {
-        // Check if user is admin
-        const userRoleDoc = await getDoc(doc(db, 'user_roles', user.uid));
-        const adminStatus = userRoleDoc.exists() && userRoleDoc.data()?.isAdmin === true;
-        setIsAdmin(adminStatus);
-        
-        // Redirect based on admin status
-        const currentPath = window.location.pathname;
-        if (adminStatus && (currentPath === '/auth' || currentPath === '/login')) {
-          navigate('/admin');
-        } else if (!adminStatus && currentPath.startsWith('/admin')) {
-          navigate('/');
-        }
-      } else {
-        setIsAdmin(false);
-      }
-      
       setLoading(false);
     });
 
     return unsubscribe;
-  }, [navigate]);
+  }, []);
 
   const signIn = async () => {
     try {
@@ -142,7 +121,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAdmin, signIn, signInWithEmail, signUpWithEmail, resetPassword, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signInWithEmail, signUpWithEmail, resetPassword, signOut }}>
       {children}
     </AuthContext.Provider>
   );

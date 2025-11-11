@@ -1,6 +1,0 @@
-node_modules/
-lib/
-serviceAccountKey.json
-*.log
-.env
-.env.local
