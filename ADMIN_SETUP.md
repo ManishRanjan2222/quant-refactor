@@ -1,331 +1,279 @@
 # AMMLogic Admin Panel - Setup Guide
 
-## 🚀 Phase 1: Security Foundation Setup
-
-This guide will help you set up the secure backend infrastructure for the AMMLogic admin panel.
-
----
+## Overview
+This guide will help you set up the admin panel for your AMMLogic Trading Calculator. The setup is simple and takes about 5-10 minutes.
 
 ## Prerequisites
-
-- Firebase CLI installed: `npm install -g firebase-tools`
-- Node.js 18+ installed
-- Firebase project already configured (check `src/config/firebase.ts`)
+- Firebase project already set up
+- Access to Firebase Console
 
 ---
 
-## Step 1: Download Service Account Key
+## Step 1: Mark Your Account as Admin
 
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Select your project: **manishtradingapp**
-3. Go to **Project Settings** → **Service Accounts**
-4. Click **Generate New Private Key**
-5. Save the JSON file as `functions/serviceAccountKey.json`
-6. **IMPORTANT**: Add this file to `.gitignore` - NEVER commit it!
+1. **Go to Firebase Console**: https://console.firebase.google.com
+2. **Select your project**: `manishtradingapp`
+3. **Navigate to Firestore Database** (in the left sidebar)
+4. **Click "Start collection"** button
+5. **Collection ID**: Enter `user_roles`
+6. **Click Next**
 
-```bash
-echo "functions/serviceAccountKey.json" >> .gitignore
+7. **Add your admin document**:
+   - **Document ID**: Your user ID (find this in Authentication > Users)
+     - Alternative: You can find your user ID by logging in and checking the browser console
+   - **Field 1**: 
+     - Field name: `isAdmin`
+     - Type: `boolean`
+     - Value: `true`
+   - **Field 2**:
+     - Field name: `role`
+     - Type: `string`
+     - Value: `admin`
+
+8. **Click Save**
+
+---
+
+## Step 2: Create App Settings
+
+### 2.1 Calculator Settings
+
+1. In Firestore, **click "Start collection"**
+2. **Collection ID**: `appSettings`
+3. **Document ID**: `calculator`
+4. **Add fields**:
+
+```
+nTrades (number): 8
+l (number): 1
+m (number): 2
+t (number): 10
+f (number): 0.1
+initialAmount (number): 10000
+```
+
+5. **Click Save**
+
+### 2.2 Site Settings
+
+1. In the same `appSettings` collection, **click "Add document"**
+2. **Document ID**: `site`
+3. **Add fields**:
+
+```
+maintenanceMode (boolean): false
+supportEmail (string): support@ammlogic.trade
+socialLinks (map):
+  twitter (string): ""
+  linkedin (string): ""
+  facebook (string): ""
+  instagram (string): ""
+  youtube (string): ""
+```
+
+4. **Click Save**
+
+---
+
+## Step 3: Create Pricing Plans
+
+1. **Click "Start collection"**
+2. **Collection ID**: `pricingPlans`
+
+### Plan 1: Basic
+- **Document ID**: `basic`
+- **Fields**:
+```
+name (string): Basic
+price (string): ₹999
+period (string): /month
+features (array):
+  - Advanced Risk Calculator
+  - Position Sizing Tools
+  - Basic Trade History
+  - Email Support
+razorpayAmount (number): 99900
+popular (boolean): false
+order (number): 1
+```
+
+### Plan 2: Professional
+- **Document ID**: `professional`
+- **Fields**:
+```
+name (string): Professional
+price (string): ₹2,499
+period (string): /month
+features (array):
+  - Everything in Basic
+  - Advanced Analytics
+  - Portfolio Management
+  - Priority Support
+  - Custom Reports
+razorpayAmount (number): 249900
+popular (boolean): true
+order (number): 2
+```
+
+### Plan 3: Enterprise
+- **Document ID**: `enterprise`
+- **Fields**:
+```
+name (string): Enterprise
+price (string): ₹4,999
+period (string): /month
+features (array):
+  - Everything in Professional
+  - API Access
+  - Dedicated Support
+  - Custom Integrations
+  - Team Features
+razorpayAmount (number): 499900
+popular (boolean): false
+order (number): 3
 ```
 
 ---
 
-## Step 2: Install Cloud Functions Dependencies
+## Step 4: Deploy Firestore Security Rules
 
+1. **Install Firebase CLI** (if not already installed):
 ```bash
-cd functions
-npm install
+npm install -g firebase-tools
 ```
 
----
-
-## Step 3: Create SuperAdmin Account
-
-Run the setup script to create your SuperAdmin account:
-
+2. **Login to Firebase**:
 ```bash
-cd functions
-npx ts-node src/setupSuperAdmin.ts
+firebase login
 ```
 
-This will create:
-- **Email**: manishranjan2499@gmail.com
-- **Password**: Manish!!
-- **Role**: SuperAdmin with full admin privileges
-
-⚠️ **CRITICAL**: Change this password immediately after first login!
-
----
-
-## Step 4: Deploy Cloud Functions
-
-Deploy all Cloud Functions to Firebase:
-
+3. **Initialize Firebase** (if not done already):
 ```bash
-firebase deploy --only functions
+firebase init firestore
 ```
+- Select your project: `manishtradingapp`
+- Keep default files: `firestore.rules` and `firestore.indexes.json`
 
-Functions that will be deployed:
-- `checkAdminRole` - Verify admin access
-- `setUserRole` - Assign admin roles (SuperAdmin only)
-- `disableUser` - Enable/disable user accounts
-- `updateAppSettings` - Update global app settings
-- `exportUserData` - Export data for compliance
-- `createUserDocument` - Auto-create user docs on signup
-- `updateLastLogin` - Track user activity
-
----
-
-## Step 5: Deploy Firestore Security Rules
-
-Deploy the security rules to protect your data:
-
+4. **Deploy security rules**:
 ```bash
 firebase deploy --only firestore:rules
 ```
 
-These rules ensure:
-- ✅ Only admins can read user_roles collection
-- ✅ Only SuperAdmins can assign admin roles
-- ✅ Users can only access their own data
-- ✅ Audit logs are immutable (write via Cloud Functions only)
-- ✅ Custom claims are verified server-side
+---
+
+## Step 5: Test Admin Access
+
+1. **Go to your app**: https://your-app-url.com/login
+2. **Login** with your admin email: `manishranjan2499@gmail.com`
+3. **You should be automatically redirected to**: `/admin`
+4. **Verify you see**:
+   - Admin sidebar with navigation
+   - "ADMIN" badge in the sidebar
+   - Dashboard with stats
+   - All admin menu items
 
 ---
 
-## Step 6: Initialize Required Collections
+## Step 6: Verification Checklist
 
-The following collections will be auto-created:
-- `users` - User metadata (created on signup)
-- `user_roles` - Role assignments (via Cloud Functions)
-- `auditLogs` - Immutable audit trail
-- `admin/appSettings` - Global settings
+Before using the admin panel, verify:
 
-Create the initial app settings document:
-
-```bash
-# Run this in Firebase Console → Firestore → Add Document
-Collection: admin
-Document ID: appSettings
-```
-
-```json
-{
-  "riskPresets": [
-    {
-      "name": "Conservative",
-      "l": 1,
-      "m": 2,
-      "t": 3,
-      "f": 4
-    },
-    {
-      "name": "Moderate",
-      "l": 2,
-      "m": 3,
-      "t": 4,
-      "f": 5
-    },
-    {
-      "name": "Aggressive",
-      "l": 3,
-      "m": 4,
-      "t": 5,
-      "f": 6
-    }
-  ],
-  "calcMultipliers": {
-    "divisorMultiplier": 1
-  },
-  "maintenanceMode": {
-    "enabled": false,
-    "message": "We're performing scheduled maintenance. Please check back soon.",
-    "allowedUsers": []
-  },
-  "brandColors": {
-    "primary": "#9333EA",
-    "accent": "#FF2D95",
-    "background": "#0A0A0B"
-  },
-  "features": {
-    "simulationEnabled": true,
-    "maxTradesPerSession": 100
-  }
-}
-```
-
----
-
-## Step 7: Test SuperAdmin Login
-
-1. Go to your app at `/auth`
-2. Sign in with:
-   - Email: manishranjan2499@gmail.com
-   - Password: Manish!!
-3. You should be automatically redirected to `/admin`
-
-If you see a "Permission Denied" error:
-- Log out and log back in (token needs refresh)
-- Check Firebase Console → Authentication → Users → click your user → Custom Claims
-- Should show: `{"admin": true, "superAdmin": true, "role": "superAdmin"}`
-
----
-
-## Step 8: Verify Installation
-
-Run these checks:
-
-1. **Custom Claims Check**:
-   - Firebase Console → Authentication → your user
-   - Custom Claims should show admin and superAdmin
-
-2. **Firestore Collections**:
-   - Check that `users`, `user_roles` collections exist
-   - Verify your SuperAdmin document is in `user_roles`
-
-3. **Cloud Functions**:
-   - Firebase Console → Functions
-   - All functions should show "Healthy" status
-
-4. **Security Rules**:
-   - Firebase Console → Firestore → Rules
-   - Should match the content from `firestore.rules`
-
----
-
-## Adding More Admins
-
-Once logged in as SuperAdmin:
-
-1. Go to `/admin/users`
-2. Find the user you want to promote
-3. Click **"Make Admin"** button
-4. User must log out and log back in to get new permissions
-
----
-
-## Security Best Practices
-
-### 🔒 Critical Security Rules
-
-1. **NEVER store admin status in client-side code**
-   - Always use Firebase Custom Claims
-   - Verify server-side via Cloud Functions
-
-2. **NEVER check admin with localStorage/cookies**
-   - Custom Claims are in the JWT token
-   - Verified automatically by Firebase
-
-3. **Keep service account key secure**
-   - Never commit `serviceAccountKey.json`
-   - Rotate keys regularly
-   - Use environment-specific keys
-
-4. **Monitor audit logs regularly**
-   - Check `/admin/audit-logs` weekly
-   - Look for suspicious role changes
-   - Verify data export activities
-
-5. **Enable 2FA for admin accounts** (coming soon)
+- [ ] You can access `/admin` after login
+- [ ] You see the admin badge in the sidebar
+- [ ] Dashboard shows user and subscription stats
+- [ ] Calculator Settings page loads and shows default values
+- [ ] Pricing Plans page shows all 3 plans
+- [ ] Users page shows list of registered users
+- [ ] Subscriptions page shows active subscriptions
+- [ ] Site Settings page loads maintenance mode toggle
+- [ ] Regular users (non-admin) cannot access `/admin` routes
 
 ---
 
 ## Troubleshooting
 
-### Issue: "Permission Denied" accessing /admin
+### Issue: "Permission Denied" when accessing admin pages
+
+**Solution**: 
+1. Check Firestore rules are deployed: `firebase deploy --only firestore:rules`
+2. Verify your `user_roles` document exists with `isAdmin: true`
+3. Try logging out and logging back in
+4. Clear browser cache and cookies
+
+### Issue: Can't find your User ID
 
 **Solution**:
-- User needs to log out and log back in
-- Custom claims are cached in the token
-- Force refresh: Call `refreshAdminStatus()` in useAuth hook
+1. Login to your app
+2. Open browser console (F12)
+3. Type: `firebase.auth().currentUser.uid`
+4. Copy the ID shown
 
-### Issue: Cloud Functions not deploying
-
-**Solution**:
-```bash
-# Check Firebase CLI is logged in
-firebase login
-
-# Check you're in the right project
-firebase use
-
-# Try deploying with verbose logging
-firebase deploy --only functions --debug
-```
-
-### Issue: "Service account key not found"
+### Issue: Admin panel not loading
 
 **Solution**:
-- Download the key from Firebase Console → Project Settings → Service Accounts
-- Save as `functions/serviceAccountKey.json`
-- Make sure the file is in the correct location
+1. Check browser console for errors
+2. Verify all Firestore collections are created
+3. Make sure you're using the correct user ID in `user_roles`
 
-### Issue: User created but no custom claims
+### Issue: Stats showing 0 in dashboard
 
 **Solution**:
-- Run the SuperAdmin setup script again
-- It will update existing users with claims
-- Check Firebase Console → Authentication → Users → Custom Claims
+- This is normal if you don't have users or subscriptions yet
+- The dashboard will update automatically as users sign up
 
 ---
 
 ## Next Steps
 
-✅ **Phase 1 Complete!** You now have:
-- Secure role-based authentication
-- Cloud Functions for admin operations
-- Firestore security rules
-- SuperAdmin account
+Now that your admin panel is set up, you can:
 
-**Coming Next**:
-- Phase 2: Update authentication flow in the app
-- Phase 3: Build admin UI components
-- Phase 4: Implement admin pages (Dashboard, Users, Trades, etc.)
+1. **Update Calculator Settings**: Change default values for all users
+2. **Manage Pricing**: Add, edit, or remove subscription plans
+3. **View Users**: Monitor user signups and activity
+4. **Track Subscriptions**: See active and expired subscriptions
+5. **Configure Site**: Enable maintenance mode, update social links
 
 ---
 
-## Environment Variables
+## Important Notes
 
-For local development, create `functions/.env`:
+### Security Best Practices
 
-```env
-FIREBASE_PROJECT_ID=manishtradingapp
-```
+1. **Never share your admin credentials**
+2. **Use strong passwords**
+3. **Regularly check audit logs** (when implemented)
+4. **Monitor user activity** for suspicious behavior
+5. **Keep Firebase rules updated**
 
-For production, set Firebase Functions config:
+### Admin Role Management
 
-```bash
-firebase functions:config:set razorpay.key_id="your_key"
-firebase functions:config:set razorpay.key_secret="your_secret"
-```
+To add more admins:
+1. Get their User ID from Firebase Authentication
+2. Add a new document in `user_roles` collection with their ID
+3. Set `isAdmin: true` and `role: admin`
+4. They'll have admin access on next login
+
+To remove admin access:
+1. Delete their document from `user_roles` collection
+2. Or set `isAdmin: false`
 
 ---
 
 ## Support
 
-If you encounter issues:
-1. Check Firebase Console logs: Functions → Logs
-2. Check browser console for client-side errors
-3. Verify Firestore security rules are deployed
-4. Ensure Cloud Functions are all "Healthy"
+If you encounter any issues:
+
+1. **Check Firebase Console logs**: Firestore > Usage tab
+2. **Check browser console**: F12 > Console tab
+3. **Verify all steps** in this guide were completed
 
 ---
 
-## Security Checklist
+## Summary
 
-Before going to production:
+✅ Your admin panel is now ready!
 
-- [ ] Changed SuperAdmin password from default
-- [ ] Service account key is in `.gitignore`
-- [ ] Firestore rules deployed and tested
-- [ ] Cloud Functions deployed successfully
-- [ ] Audit logs are being created
-- [ ] Custom claims working correctly
-- [ ] Regular users cannot access `/admin`
-- [ ] Only SuperAdmins can assign admin roles
-- [ ] All admin actions are logged in auditLogs
+**Admin URL**: `/admin`
+**Admin Email**: `manishranjan2499@gmail.com`
 
----
-
-**Last Updated**: $(date)
-**Firebase Project**: manishtradingapp
-**Admin Panel Version**: 1.0.0
+You can now control all aspects of your AMMLogic Trading Calculator from one central admin panel.
