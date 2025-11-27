@@ -9,7 +9,7 @@ import { useTrialEligibility } from '@/hooks/useTrialEligibility';
 import { useNavigate } from 'react-router-dom';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '@/config/firebase';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { CASHFREE_CONFIG } from '@/config/cashfree';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -127,27 +127,55 @@ const Upgrade = () => {
     try {
       toast.loading('Creating payment session...');
 
-      // Call Firebase function to create Cashfree order
-      const functions = getFunctions();
-      const createOrder = httpsCallable(functions, 'createCashfreeOrder');
-      
-      const result = await createOrder({
-        planId: plan.planId,
-        planName: plan.name,
-        amount: plan.amount,
-        userId: user!.uid,
-        userEmail: user!.email,
-        userName: user!.displayName || user!.email?.split('@')[0],
+      // Create Cashfree order directly
+      const orderId = `order_${Date.now()}_${user!.uid.substring(0, 8)}`;
+      const orderData = {
+        order_id: orderId,
+        order_amount: (plan.amount / 100).toFixed(2), // Convert cents to dollars
+        order_currency: 'USD',
+        customer_details: {
+          customer_id: user!.uid,
+          customer_email: user!.email,
+          customer_phone: '0000000000', // Required by Cashfree
+          customer_name: user!.displayName || user!.email?.split('@')[0] || 'User',
+        },
+        order_meta: {
+          return_url: `${window.location.origin}/upgrade?status=success`,
+          notify_url: `${window.location.origin}/api/cashfree-webhook`,
+        },
+        order_note: `${plan.name} Plan - ${plan.period}`,
+      };
+
+      const response = await fetch(CASHFREE_CONFIG.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-version': CASHFREE_CONFIG.apiVersion,
+          'x-client-id': CASHFREE_CONFIG.appId,
+          'x-client-secret': CASHFREE_CONFIG.secretKey,
+        },
+        body: JSON.stringify(orderData),
       });
 
-      const data = result.data as any;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        
+        // Check for CORS error
+        if (response.type === 'cors' || response.status === 0) {
+          throw new Error('CORS_ERROR: Unable to connect to payment gateway. Please contact support.');
+        }
+        
+        throw new Error(errorData.message || `Payment setup failed (${response.status})`);
+      }
+
+      const data = await response.json();
       toast.dismiss();
 
       // Initialize Cashfree checkout
-      const cashfree = window.Cashfree({ mode: 'production' });
+      const cashfree = window.Cashfree({ mode: CASHFREE_CONFIG.environment });
       
       const checkoutOptions = {
-        paymentSessionId: data.paymentSessionId,
+        paymentSessionId: data.payment_session_id,
         returnUrl: `${window.location.origin}/upgrade?status=success`,
       };
 
@@ -163,7 +191,7 @@ const Upgrade = () => {
             planName: plan.name,
             amount: plan.amount,
             currency: 'USD',
-            cashfreeOrderId: data.orderId,
+            cashfreeOrderId: data.order_id || orderId,
             status: 'failed',
             createdAt: new Date(),
           });
@@ -175,7 +203,7 @@ const Upgrade = () => {
               plan.planId,
               plan.name,
               plan.duration,
-              data.orderId
+              data.order_id || orderId
             );
 
             // Log successful transaction
@@ -186,7 +214,7 @@ const Upgrade = () => {
               planName: plan.name,
               amount: plan.amount,
               currency: 'USD',
-              cashfreeOrderId: data.orderId,
+              cashfreeOrderId: data.order_id || orderId,
               status: 'success',
               createdAt: new Date(),
             });
@@ -205,7 +233,15 @@ const Upgrade = () => {
     } catch (error: any) {
       console.error('Error creating payment:', error);
       toast.dismiss();
-      toast.error(error.message || 'Failed to create payment session. Please try again.');
+      
+      // Handle CORS errors specifically
+      if (error.message?.includes('CORS_ERROR')) {
+        toast.error('Payment gateway connection blocked. Please contact support at support@ammlogic.trade', {
+          duration: 6000,
+        });
+      } else {
+        toast.error(error.message || 'Failed to create payment session. Please try again.');
+      }
     }
   };
 
