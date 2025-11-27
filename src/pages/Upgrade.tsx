@@ -1,29 +1,83 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useTrialEligibility } from '@/hooks/useTrialEligibility';
 import { useNavigate } from 'react-router-dom';
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from '@/config/firebase';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 declare global {
   interface Window {
-    Razorpay: any;
+    Cashfree: any;
   }
 }
 
 const Upgrade = () => {
   const { user } = useAuth();
   const { createSubscription, subscription } = useSubscription();
+  const { hasUsedTrial, loading: trialLoading } = useTrialEligibility();
   const navigate = useNavigate();
 
-  // Define plan hierarchy for comparison
+  const plans = [
+    {
+      name: 'Trial',
+      price: '$1',
+      period: '1 month',
+      duration: 1,
+      amount: 100, // cents
+      planId: 'trial',
+      isTrialPlan: true,
+      features: [
+        'Full calculator access',
+        'Cloud sync',
+        'Email support',
+        'First-time users only',
+      ],
+    },
+    {
+      name: 'Annual',
+      price: '$50',
+      period: 'per year',
+      duration: 12,
+      amount: 5000, // cents
+      planId: 'annual',
+      popular: true,
+      features: [
+        'Full calculator access',
+        'Cloud sync',
+        'Priority support',
+        'Advanced analytics',
+        'Export capabilities',
+      ],
+    },
+    {
+      name: 'Lifetime',
+      price: '$100',
+      period: 'one-time',
+      duration: -1, // -1 = lifetime
+      amount: 10000, // cents
+      planId: 'lifetime',
+      features: [
+        'Everything in Annual',
+        'Lifetime access',
+        'All future updates',
+        'Dedicated support',
+        'Early access to features',
+      ],
+    },
+  ];
+
   const planHierarchy: { [key: string]: number } = {
-    'basic': 1,
-    'professional': 2,
-    'enterprise': 3
+    'trial': 1,
+    'annual': 2,
+    'lifetime': 3,
   };
 
   const getCurrentPlanLevel = () => {
@@ -31,69 +85,36 @@ const Upgrade = () => {
     return planHierarchy[subscription.planId] || 0;
   };
 
-  const isPlanDisabled = (planId: string) => {
+  const isPlanDisabled = (planId: string, isTrialPlan: boolean) => {
+    // Disable trial if already used
+    if (isTrialPlan && hasUsedTrial) return true;
+    
     const currentLevel = getCurrentPlanLevel();
     const planLevel = planHierarchy[planId] || 0;
     return planLevel <= currentLevel;
   };
 
-  const plans = [
-    {
-      name: 'Basic',
-      price: '₹999',
-      period: '/month',
-      features: [
-        'Up to 100 trades per month',
-        'Basic analytics',
-        'Email support',
-        'Cloud storage',
-      ],
-      razorpayAmount: 99900, // in paise
-      planId: 'basic'
-    },
-    {
-      name: 'Professional',
-      price: '₹2,999',
-      period: '/month',
-      features: [
-        'Unlimited trades',
-        'Advanced analytics',
-        'Priority support',
-        'Cloud storage',
-        'Custom reports',
-        'API access',
-      ],
-      razorpayAmount: 299900,
-      planId: 'professional',
-      popular: true
-    },
-    {
-      name: 'Enterprise',
-      price: '₹9,999',
-      period: '/month',
-      features: [
-        'Everything in Professional',
-        'Dedicated account manager',
-        '24/7 phone support',
-        'Custom integrations',
-        'Team collaboration',
-        'Advanced security',
-      ],
-      razorpayAmount: 999900,
-      planId: 'enterprise'
-    }
-  ];
+  const getButtonText = (planId: string, isTrialPlan: boolean) => {
+    if (isTrialPlan && hasUsedTrial) return 'Trial Used';
+    
+    const currentLevel = getCurrentPlanLevel();
+    const planLevel = planHierarchy[planId] || 0;
+    
+    if (planLevel === currentLevel) return 'Current Plan';
+    if (planLevel < currentLevel) return 'Downgrade Not Available';
+    return 'Subscribe Now';
+  };
 
-  const handleUpgrade = (plan: typeof plans[0]) => {
+  const handleUpgrade = async (plan: typeof plans[0]) => {
     if (!user) {
       toast.error('Please sign in to upgrade');
       return;
     }
 
-    // Load Razorpay script if not already loaded
-    if (!window.Razorpay) {
+    // Load Cashfree script if not already loaded
+    if (!window.Cashfree) {
       const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
       script.async = true;
       script.onload = () => initiatePayment(plan);
       document.body.appendChild(script);
@@ -102,59 +123,106 @@ const Upgrade = () => {
     }
   };
 
-  const initiatePayment = (plan: typeof plans[0]) => {
-    const options = {
-      key: 'rzp_test_1DP5mmOlF5G5ag', // Test key from uploaded file
-      amount: plan.razorpayAmount,
-      currency: 'INR',
-      name: 'AMMLogic.Trade',
-      description: `${plan.name} Plan Subscription`,
-      image: '/favicon.ico',
-      handler: async function (response: any) {
-        try {
-          // Save subscription to Firebase
-          await createSubscription(
-            plan.planId,
-            plan.name,
-            1, // 1 month duration
-            response.razorpay_payment_id
-          );
-          
-          toast.success('Payment successful! Your subscription is now active.');
-          setTimeout(() => {
-            navigate('/');
-          }, 2000);
-        } catch (error) {
-          console.error('Error saving subscription:', error);
-          toast.error('Payment received but failed to activate subscription. Please contact support.');
-        }
-      },
-      prefill: {
-        email: user?.email || '',
-        name: user?.displayName || '',
-      },
-      theme: {
-        color: '#3b82f6',
-      },
-      modal: {
-        ondismiss: function() {
-          toast.info('Payment cancelled');
-        },
-        confirm_close: true
-      }
-    };
-
+  const initiatePayment = async (plan: typeof plans[0]) => {
     try {
-      const razorpay = new window.Razorpay(options);
-      razorpay.on('payment.failed', function (response: any) {
-        toast.error('Payment failed: ' + response.error.description);
+      toast.loading('Creating payment session...');
+
+      // Call Firebase function to create Cashfree order
+      const functions = getFunctions();
+      const createOrder = httpsCallable(functions, 'createCashfreeOrder');
+      
+      const result = await createOrder({
+        planId: plan.planId,
+        planName: plan.name,
+        amount: plan.amount,
+        userId: user!.uid,
+        userEmail: user!.email,
+        userName: user!.displayName || user!.email?.split('@')[0],
       });
-      razorpay.open();
-    } catch (error) {
-      console.error('Error opening Razorpay:', error);
-      toast.error('Failed to open payment gateway. Please try again.');
+
+      const data = result.data as any;
+      toast.dismiss();
+
+      // Initialize Cashfree checkout
+      const cashfree = window.Cashfree({ mode: 'production' });
+      
+      const checkoutOptions = {
+        paymentSessionId: data.paymentSessionId,
+        returnUrl: `${window.location.origin}/upgrade?status=success`,
+      };
+
+      cashfree.checkout(checkoutOptions).then(async (result: any) => {
+        if (result.error) {
+          toast.error('Payment failed: ' + result.error.message);
+          
+          // Log failed transaction
+          await addDoc(collection(db, 'transactions'), {
+            userId: user!.uid,
+            userEmail: user!.email,
+            planId: plan.planId,
+            planName: plan.name,
+            amount: plan.amount,
+            currency: 'USD',
+            cashfreeOrderId: data.orderId,
+            status: 'failed',
+            createdAt: new Date(),
+          });
+        } else if (result.paymentDetails) {
+          // Payment successful
+          try {
+            // Save subscription
+            await createSubscription(
+              plan.planId,
+              plan.name,
+              plan.duration,
+              data.orderId
+            );
+
+            // Log successful transaction
+            await addDoc(collection(db, 'transactions'), {
+              userId: user!.uid,
+              userEmail: user!.email,
+              planId: plan.planId,
+              planName: plan.name,
+              amount: plan.amount,
+              currency: 'USD',
+              cashfreeOrderId: data.orderId,
+              status: 'success',
+              createdAt: new Date(),
+            });
+
+            toast.success('Payment successful! Your subscription is now active.');
+            setTimeout(() => {
+              navigate('/');
+            }, 2000);
+          } catch (error) {
+            console.error('Error saving subscription:', error);
+            toast.error('Payment received but failed to activate subscription. Please contact support.');
+          }
+        }
+      });
+
+    } catch (error: any) {
+      console.error('Error creating payment:', error);
+      toast.dismiss();
+      toast.error(error.message || 'Failed to create payment session. Please try again.');
     }
   };
+
+  if (trialLoading) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-card flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading plans...</p>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -178,35 +246,40 @@ const Upgrade = () => {
               >
                 <CardHeader>
                   {plan.popular && (
-                    <div className="inline-block px-3 py-1 mb-4 text-xs font-semibold bg-gradient-to-r from-primary to-primary-glow text-primary-foreground rounded-full">
+                    <Badge className="inline-block w-fit px-3 py-1 mb-4 text-xs font-semibold bg-gradient-to-r from-primary to-primary-glow text-primary-foreground rounded-full">
                       MOST POPULAR
-                    </div>
+                    </Badge>
+                  )}
+                  {plan.isTrialPlan && (
+                    <Badge className="inline-block w-fit px-3 py-1 mb-4 text-xs font-semibold bg-gradient-to-r from-accent to-primary text-primary-foreground rounded-full">
+                      FIRST TIME ONLY
+                    </Badge>
                   )}
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <CardDescription>
                     <span className="text-4xl font-bold text-foreground">{plan.price}</span>
-                    <span className="text-muted-foreground">{plan.period}</span>
+                    <span className="text-muted-foreground"> / {plan.period}</span>
                   </CardDescription>
                 </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2">
-                      <Check className="h-5 w-5 text-primary flex-shrink-0" />
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
                 <CardFooter>
                   <Button
                     onClick={() => handleUpgrade(plan)}
-                    disabled={isPlanDisabled(plan.planId)}
+                    disabled={isPlanDisabled(plan.planId, plan.isTrialPlan || false)}
                     className={`w-full ${plan.popular ? 'bg-gradient-to-r from-primary to-primary-glow hover:shadow-[var(--shadow-glow)]' : ''}`}
                     variant={plan.popular ? 'default' : 'outline'}
                     size="lg"
                   >
-                    {isPlanDisabled(plan.planId) ? 'Current Plan' : 'Subscribe Now'}
+                    {getButtonText(plan.planId, plan.isTrialPlan || false)}
                   </Button>
                 </CardFooter>
               </Card>
@@ -214,7 +287,7 @@ const Upgrade = () => {
           </div>
 
           <div className="mt-12 text-center text-sm text-muted-foreground">
-            <p>All plans include a 7-day money-back guarantee</p>
+            <p>All plans are secured with Cashfree payment processing</p>
             <p className="mt-2">Need a custom plan? Contact us at support@ammlogic.trade</p>
           </div>
         </div>

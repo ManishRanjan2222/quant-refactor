@@ -9,7 +9,8 @@ export interface Subscription {
   startDate: Date;
   endDate: Date;
   isActive: boolean;
-  razorpayPaymentId?: string;
+  isLifetime: boolean;
+  cashfreeOrderId?: string;
 }
 
 export const useSubscription = () => {
@@ -29,8 +30,9 @@ export const useSubscription = () => {
         const subDoc = await getDoc(doc(db, 'subscriptions', user.uid));
         if (subDoc.exists()) {
           const data = subDoc.data();
-          const endDate = data.endDate.toDate();
-          const isActive = endDate > new Date();
+          const isLifetime = data.isLifetime || false;
+          const endDate = data.endDate ? data.endDate.toDate() : new Date();
+          const isActive = isLifetime || endDate > new Date();
           
           setSubscription({
             planId: data.planId,
@@ -38,7 +40,8 @@ export const useSubscription = () => {
             startDate: data.startDate.toDate(),
             endDate,
             isActive,
-            razorpayPaymentId: data.razorpayPaymentId,
+            isLifetime,
+            cashfreeOrderId: data.cashfreeOrderId,
           });
         } else {
           setSubscription(null);
@@ -58,20 +61,28 @@ export const useSubscription = () => {
     planId: string,
     planName: string,
     durationMonths: number,
-    razorpayPaymentId: string
+    cashfreeOrderId: string
   ) => {
     if (!user) return;
 
     const startDate = new Date();
+    const isLifetime = durationMonths === -1;
     const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + durationMonths);
+    
+    if (!isLifetime) {
+      endDate.setMonth(endDate.getMonth() + durationMonths);
+    } else {
+      // Set far future date for lifetime
+      endDate.setFullYear(endDate.getFullYear() + 100);
+    }
 
     const subData = {
       planId,
       planName,
       startDate,
       endDate,
-      razorpayPaymentId,
+      isLifetime,
+      cashfreeOrderId,
       userId: user.uid,
       userEmail: user.email,
     };
@@ -84,12 +95,14 @@ export const useSubscription = () => {
       startDate,
       endDate,
       isActive: true,
-      razorpayPaymentId,
+      isLifetime,
+      cashfreeOrderId,
     });
   };
 
   const checkSubscription = () => {
     if (!subscription) return false;
+    if (subscription.isLifetime) return true;
     return subscription.isActive && subscription.endDate > new Date();
   };
 
