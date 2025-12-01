@@ -9,7 +9,6 @@ import { useTrialEligibility } from '@/hooks/useTrialEligibility';
 import { useNavigate } from 'react-router-dom';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '@/config/firebase';
-import { CASHFREE_CONFIG } from '@/config/cashfree';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -146,16 +145,22 @@ const Upgrade = () => {
         order_note: `${plan.name} Plan - ${plan.period}`,
       };
 
-      const response = await fetch(CASHFREE_CONFIG.apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-version': CASHFREE_CONFIG.apiVersion,
-          'x-client-id': CASHFREE_CONFIG.appId,
-          'x-client-secret': CASHFREE_CONFIG.secretKey,
-        },
-        body: JSON.stringify(orderData),
-      });
+      const response = await fetch(
+        'https://dqmsktvriykijbepbqkv.supabase.co/functions/v1/create-cashfree-order',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderId,
+            amount: (plan.amount / 100).toFixed(2),
+            currency: 'USD',
+            customerDetails: orderData.customer_details,
+            orderNote: orderData.order_note,
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -172,7 +177,7 @@ const Upgrade = () => {
       toast.dismiss();
 
       // Initialize Cashfree checkout
-      const cashfree = window.Cashfree({ mode: CASHFREE_CONFIG.environment });
+      const cashfree = window.Cashfree({ mode: 'production' });
       
       const checkoutOptions = {
         paymentSessionId: data.payment_session_id,
